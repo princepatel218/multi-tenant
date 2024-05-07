@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+    <changeSet id="000001" author="Prince Patel">
+        <createTable tableName="subscription_plans">
+            <column name="id" type="bigint" autoIncrement="true" >
+                <constraints primaryKey="true" />
+            </column>
+            <column name="name" type="varchar(64)" >
+                <constraints nullable="false" />
+            </column>
+            <column name="description" type="text" />
+        </createTable>
+        
+        <createTable tableName="features">
+            <column name="id" type="bigint" autoIncrement="true" >
+                <constraints primaryKey="true" />
+            </column>
+            <column name="name" type="varchar(64)" >
+                <constraints nullable="false" />
+            </column>
+            <column name="description" type="text" />
+        </createTable>
+        
+        <createTable tableName="subscription_plan_features">
+            <column name="subscription_id" type="bigint"/>
+            <column name="feature_id" type="bigint" />
+            <column name="default_quota" type="bigint" />
+        </createTable>
+        <addPrimaryKey tableName="subscription_plan_features" columnNames="subscription_id, feature_id" />
+        <addForeignKeyConstraint baseTableName="subscription_plan_features" baseColumnNames="subscription_id"
+                                 constraintName="fk_subscription_id"
+                                 referencedTableName="subscription_plans"
+                                 referencedColumnNames="id" />
+        <addForeignKeyConstraint baseTableName="subscription_plan_features" baseColumnNames="feature_id"
+                                 constraintName="fk_feature_id"
+                                 referencedTableName="features"
+                                 referencedColumnNames="id" />
+
+        <createTable tableName="roles">
+            <column name="id" type="bigint" autoIncrement="true" >
+                <constraints primaryKey="true" />
+            </column>
+            <column name="name" type="varchar(64)" >
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+        
+        <createTable tableName="permissions">
+            <column name="id" type="bigint" autoIncrement="true" >
+                <constraints primaryKey="true" />
+            </column>
+            <column name="name" type="varchar(64)" >
+                <constraints nullable="false" />
+            </column>
+            <column name="description" type="text" />
+        </createTable>
+        
+        <createTable tableName="role_permissions">
+            <column name="role_id" type="bigint" />
+            <column name="permission_id" type="bigint" />
+        </createTable>
+        <addPrimaryKey tableName="role_permissions" columnNames="role_id, permission_id" />
+        <addForeignKeyConstraint baseTableName="role_permissions" baseColumnNames="role_id" constraintName="fk_role_id"
+                                 referencedTableName="roles"
+                                 referencedColumnNames="id" />
+        <addForeignKeyConstraint baseTableName="role_permissions" baseColumnNames="permission_id"
+                                 constraintName="fk_permission_id"
+                                 referencedTableName="permissions"
+                                 referencedColumnNames="id" />
+
+        <createTable tableName="tenants">
+            <column name="id" type="uuid" >
+                <constraints primaryKey="true" />
+            </column>
+            <column name="name" type="varchar(255)" >
+                <constraints nullable="false" />
+            </column>
+            <column name="status" type="varchar(16)" >
+                <constraints nullable="false" />
+            </column>
+            <column name="address_line_1" type="varchar(255)" />
+            <column name="address_line_2" type="varchar(255)" />
+            <column name="city" type="varchar(64)" />
+            <column name="state" type="varchar(64)" />
+            <column name="postal_code" type="varchar(16)" />
+            <column name="country" type="varchar(64)" />
+            <column name="contact_email" type="varchar(255)" >
+                <constraints nullable="false" />
+            </column>
+            <column name="contact_number" type="varchar(32)" >
+                <constraints nullable="false" />
+            </column>
+            <column name="created_timestamp" type="timestamp" />
+            <column name="updated_timestamp" type="timestamp" />
+        </createTable>
+
+        <createTable tableName="subscriptions">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="tenant_id" type="uuid" >
+                <constraints nullable="false" />
+            </column>
+            <column name="subscription_plan_id" type="bigint">
+                <constraints nullable="false" />
+            </column>
+            <column name="valid_from" type="timestamp" >
+                <constraints nullable="false" />
+            </column>
+            <column name="valid_until" type="timestamp" >
+                <constraints nullable="false" />
+            </column>
+            <column name="is_active" type="boolean" >
+                <constraints nullable="false" />
+            </column>
+            <column name="created_timestamp" type="timestamp" />
+            <column name="updated_timestamp" type="timestamp" />
+        </createTable>
+        <addForeignKeyConstraint baseTableName="subscriptions" baseColumnNames="tenant_id" constraintName="fk_tenant_id"
+                                 referencedTableName="tenants"
+                                 referencedColumnNames="id" />
+        <addForeignKeyConstraint baseTableName="subscriptions" baseColumnNames="subscription_plan_id"
+                                 constraintName="fk_subscription_plan_id"
+                                 referencedTableName="subscription_plans"
+                                 referencedColumnNames="id" />
+
+        <createTable tableName="feature_usages">
+            <column name="tenant_id" type="uuid" />
+            <column name="feature_id" type="bigint" />
+            <column name="override_default_quota" type="bigint" />
+            <column name="created_timestamp" type="timestamp" />
+            <column name="updated_timestamp" type="timestamp" />
+        </createTable>
+        <addPrimaryKey tableName="feature_usages" columnNames="tenant_id, feature_id" />
+        <addForeignKeyConstraint baseTableName="feature_usages" baseColumnNames="tenant_id" constraintName="fk_tenant_id"
+                                 referencedTableName="tenants"
+                                 referencedColumnNames="id" />
+        <addForeignKeyConstraint baseTableName="feature_usages" baseColumnNames="feature_id"
+                                 constraintName="fk_feature_id"
+                                 referencedTableName="features"
+                                 referencedColumnNames="id" />
+
+        <createTable tableName="users">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="tenant_id" type="uuid" >
+                <constraints nullable="false" />
+            </column>
+            <column name="name" type="varchar(64)" >
+                <constraints nullable="false" />
+            </column>
+            <column name="email" type="varchar(255)" >
+                <constraints nullable="false" />
+            </column>
+            <column name="password" type="varchar(60)" >
+                <constraints nullable="false" />
+            </column>
+            <column name="is_active" type="boolean" >
+                <constraints nullable="false" />
+            </column>
+            <column name="created_timestamp" type="timestamp" />
+            <column name="updated_timestamp" type="timestamp" />
+            <column name="last_logged_in" type="timestamp" />
+            <column name="created_by" type="bigint" />
+            <column name="updated_by" type="bigint" />
+        </createTable>
+        <addForeignKeyConstraint baseTableName="users" baseColumnNames="tenant_id" constraintName="fk_tenant_id"
+                                 referencedTableName="tenants"
+                                 referencedColumnNames="id" />
+
+        <createTable tableName="user_roles">
+            <column name="user_id" type="bigint" />
+            <column name="role_id" type="bigint" />
+            <column name="is_active" type="boolean" >
+                <constraints nullable="false" />
+            </column>
+            <column name="created_timestamp" type="timestamp" />
+            <column name="updated_timestamp" type="timestamp" />
+            <column name="created_by" type="bigint" />
+            <column name="updated_by" type="bigint" />
+        </createTable>
+        <addPrimaryKey tableName="user_roles" columnNames="user_id, role_id" />
+        <addForeignKeyConstraint baseTableName="user_roles" baseColumnNames="user_id" constraintName="fk_user_id"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id" />
+        <addForeignKeyConstraint baseTableName="user_roles" baseColumnNames="role_id" constraintName="fk_role_id"
+                                 referencedTableName="roles"
+                                 referencedColumnNames="id" />
+
+        <createTable tableName="some_table">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="tenant_id" type="uuid" >
+                <constraints nullable="false" />
+            </column>
+            <column name="name" type="varchar(64)" />
+            <column name="value" type="varchar(64)" />
+            <column name="created_by" type="bigint" />
+            <column name="updated_by" type="bigint"/>
+            <column name="created_timestamp" type="timestamp" />
+            <column name="updated_timestamp" type="timestamp" />
+        </createTable>
+        <addForeignKeyConstraint baseTableName="some_table" baseColumnNames="tenant_id" constraintName="fk_tenant_id"
+                                 referencedTableName="tenants"
+                                 referencedColumnNames="id" />
+        <createIndex tableName="some_table" indexName="idx_some_table_tenant_id">
+            <column name="tenant_id" />
+        </createIndex>
+
+        <createTable tableName="some_other_table">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" />
+            </column>
+            <column name="tenant_id" type="uuid" >
+                <constraints nullable="false" />
+            </column>
+            <column name="name" type="varchar(64)" />
+            <column name="value" type="varchar(64)" />
+            <column name="created_by" type="bigint" />
+            <column name="updated_by" type="bigint"/>
+            <column name="created_timestamp" type="timestamp" />
+            <column name="updated_timestamp" type="timestamp" />
+        </createTable>
+        <addForeignKeyConstraint baseTableName="some_other_table" baseColumnNames="tenant_id" constraintName="fk_tenant_id"
+                                 referencedTableName="tenants"
+                                 referencedColumnNames="id" />
+        <createIndex tableName="some_other_table" indexName="idx_some_other_table_tenant_id">
+            <column name="tenant_id" />
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: multi-tenant
+  datasource:
+    url: jdbc:postgresql://localhost:5432/multi_tenant
+    username: postgres
+    password: root
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    open-in-view: true
+  liquibase:
+    change-log: classpath:db/changelog/master.xml
+server:
+  port: 9080
+
+#logging:
+#  level:
+#    org.hibernate.SQL: DEBUG
+#    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
